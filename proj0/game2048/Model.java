@@ -5,7 +5,7 @@ import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author Robin Pan
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -83,7 +83,7 @@ public class Model extends Observable {
         score = 0;
         gameOver = false;
         board.clear();
-        setChanged();
+        setChanged();// To tell the observer that the board has been changed.
     }
 
     /** Add TILE to the board. There must be no Tile currently at the
@@ -106,14 +106,56 @@ public class Model extends Observable {
      *    value, then the leading two tiles in the direction of motion merge,
      *    and the trailing tile does not.
      * */
+
+    /**This function is to complete one col moving in the reoriented board.
+     * */
+    public boolean helper(Board b, Side side, int col, int board_size){
+        boolean has_changed = false;//判重的
+
+        for (int i = board_size - 1, pre_val = 0, pre_row = board_size, row = i; row >= 0; row -= 1, i = row) {
+            while (i >= 0 && b.tile(col, i) == null) {
+                i -= 1;
+            }
+            if (i < 0) { break; }
+            Tile t = b.tile(col, i);
+
+            if (pre_val == 0) { // pre_val == 0 means what all you need to do is to move the block up!
+                pre_val = t.value();
+                b.move(col, row, t);
+                pre_row = row;
+                if (i != row){
+                    has_changed = true;
+                }
+            }else if (pre_val == t.value()){
+                this.score += t.value() * 2;
+                b.move(col, pre_row, t);
+                pre_val = 0;
+                pre_row = board_size;
+                row += 1;
+                has_changed = true;
+            } else if (pre_val != t.value()){
+                pre_val = t.value();
+                b.move(col, row, t);
+                pre_row = row;
+                has_changed = true;
+            }
+        }
+        return has_changed;
+    }
+
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
-
+        int board_size = this.board.size();
+        this.board.startViewingFrom(side);
         // TODO: Modify this.board (and perhaps this.score) to account
-        // for the tilt to the Side SIDE. If the board changed, set the
+        // for the tilt to the Side SIDE. If the board changed,
         // changed local variable to true.
 
+        for (int col = 0; col < board_size; col = col + 1){
+            changed = helper(this.board, side, col, board_size) || changed;
+        }
+        this.board.startViewingFrom(Side.NORTH);
         checkGameOver();
         if (changed) {
             setChanged();
@@ -138,6 +180,15 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        int board_size = b.size();
+
+        for (int col = 0; col < board_size; col += 1){
+            for (int row = 0; row < board_size; row += 1){
+                if (b.tile(col, row) == null) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -148,6 +199,15 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        int board_size = b.size();
+
+        for (int row = 0; row < board_size; row += 1){
+            for (int col = 0; col < board_size; col += 1){
+                if (b.tile(col, row) != null && b.tile(col, row).value() == MAX_PIECE){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -159,6 +219,37 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+        int board_size = b.size();
+
+        /**To find out if there exists null tile. */
+        for (int row = 0; row < board_size; row += 1){
+            for (int col = 0; col < board_size; col += 1){
+                if (b.tile(col, row) == null){
+                    return true;
+                }
+            }
+        }
+
+        /**To find out if there exists adjacent same value tile in col*/
+        for (int col = 0; col < board_size; col += 1){
+            for (int row = 0; row < board_size - 1; row += 1){
+                int pre = b.tile(col, row).value();
+                int next = b.tile(col, row + 1).value();
+                if (pre == next) {
+                    return true;
+                }
+            }
+        }
+        /**To find out if there exists adjacent same value tile in row*/
+        for (int col = 0; col < board_size - 1; col += 1){
+            for (int row = 0; row < board_size; row += 1){
+                int pre = b.tile(col, row).value();
+                int next = b.tile(col + 1, row).value();
+                if (pre == next) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
