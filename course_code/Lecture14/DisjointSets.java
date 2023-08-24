@@ -1,2 +1,5 @@
-package PACKAGE_NAME;public interface DisjointSets {
+public interface DisjointSets {
+    boolean isConnected(int p, int q);
+
+    void connect(int p, int q);
 }

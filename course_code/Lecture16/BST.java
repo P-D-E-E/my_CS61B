@@ -1,18 +1,47 @@
-public class BinarySearchTree{
+public class BST{
 
     private int item;
-    public BinarySearchTree(int i){
-        item = i
+    private BST left;
+    private BST right;
+    public BST(int i){
+        item = i;
     }
 
-    public void Insert(BinarySearchTree T, Item i){
+    public BST Insert(BST T, int i){
         if (T == null) {
-            return new BinarySearchTree<Item>(i);
+            return new BST(i);
         }
-        if (i.compareTo(T.root.item) < 0){
-
+        if (i < T.item){
+            T.left = Insert(T.left, i);
+        }else {
+            T.right = Insert(T.right, i);
+        }
+        return T;
+    }
+    public boolean Find(BST T,int i){
+        if (T == null){
+            return false;
+        }
+        if (i < T.item){
+            return Find(T.left, i);
+        }else if (i > T.item){
+            return Find(T.right, i);
+        }else{
+            return true;
         }
     }
+    public void Delete(BST T, int i){
+        if (T == null){return;}
 
+        if (i < T.item){
+            Delete(T.left, i);
+        }else if(i > T.item){
+            Delete(T.right, i);
+        }else{
+            if (T.left == null && T.right == null){
+
+            }
+        }
+    }
 
 }

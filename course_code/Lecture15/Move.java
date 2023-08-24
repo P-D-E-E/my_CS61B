@@ -1,2 +1,3 @@
-package PACKAGE_NAME;public class Move {
+public interface Move {
+    void move(int[] src);
 }
