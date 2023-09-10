@@ -54,7 +54,12 @@ public class CapersRepository implements Serializable {
     public static void writeStory(String text) {
         // TODO
         String old_text = readContentsAsString(STORY);
-        String new_text = old_text + "\n" + text;
+        String new_text;
+        if (old_text.length() == 0){
+            new_text = text;
+        }else {
+            new_text = old_text + '\n' +  text;
+        }
         Utils.writeContents(STORY, new_text);
         System.out.println(readContentsAsString(STORY));
     }
